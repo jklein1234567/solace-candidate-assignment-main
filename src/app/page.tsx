@@ -29,23 +29,18 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/advocates").then((response) =>
       response.json().then((jsonResponse) => {
-        const data = jsonResponse.data;
+        const data: Advocate[] = jsonResponse.data;
         setAdvocates(data);
         setFilteredAdvocates(data);
 
         const uniqueDegrees = data
-          .map((a: Advocate) => a.degree)
-          .filter(
-            (val: string, i: number, self: string[]) => self.indexOf(val) === i
-          );
+          .map((a) => a.degree)
+          .filter((val, i, self) => self.indexOf(val) === i);
         setDegrees(uniqueDegrees);
 
-        const allSpecialties = data.flatMap((a: Advocate) => a.specialties);
-        const uniqueSpecialties = allSpecialties
-          .map((s: string) => s)
-          .filter(
-            (val: string, i: number, self: string[]) => self.indexOf(val) === i
-          );
+        const uniqueSpecialties = data
+          .flatMap((a) => a.specialties)
+          .filter((val, i, self) => self.indexOf(val) === i);
         setSpecialtiesList(uniqueSpecialties);
       })
     );
@@ -113,6 +108,25 @@ export default function Home() {
     handleSearch();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    const target = e.target as HTMLElement;
+
+    const isTextInput =
+      target.tagName === "INPUT" ||
+      target.tagName === "SELECT" ||
+      target.tagName === "TEXTAREA";
+
+    // allow default behavior to submit form
+    if (e.key === "Enter" && isTextInput) {
+      return;
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
@@ -120,29 +134,25 @@ export default function Home() {
       </h1>
       <form
         onSubmit={handleSubmit}
+        onKeyDown={handleKeyDown}
         className="bg-white p-6 rounded-lg shadow-md mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
-        {["firstName", "lastName", "city", "phoneNumber"].map((field) => (
-          <div key={field}>
-            <label className="block text-sm font-medium text-gray-700">
-              {field === "firstName"
-                ? "First Name"
-                : field === "lastName"
-                ? "Last Name"
-                : field === "phoneNumber"
-                ? "Phone Number"
-                : "City"}
-            </label>
-            <input
-              type="text"
-              name={field}
-              value={(filters as any)[field]}
-              onChange={handleChange}
-              placeholder={`Filter by ${field}`}
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-        ))}
+        {(["firstName", "lastName", "city", "phoneNumber"] as const).map(
+          (field) => (
+            <div key={field}>
+              <label className="block text-sm font-medium text-gray-700 capitalize">
+                {field}
+              </label>
+              <input
+                type="text"
+                name={field}
+                value={filters[field]}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          )
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -205,18 +215,21 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2">
             {specialtiesList.map((s) => (
-              <button
-                type="button"
+              // I am doing dive with role button so then when I hit enter it does select an option
+              // and instead submits the form
+              <div
                 key={s}
+                role="button"
+                tabIndex={-1}
                 onClick={() => toggleSpecialty(s)}
-                className={`text-xs px-2 py-1 rounded-full border ${
+                className={`cursor-pointer text-xs px-2 py-1 rounded-full border ${
                   filters.specialties.includes(s)
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-800 hover:bg-blue-100"
                 }`}
               >
                 {s}
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -240,21 +253,14 @@ export default function Home() {
             <h2 className="text-lg font-semibold text-gray-800 mb-1">
               {advocate.firstName} {advocate.lastName}
             </h2>
+            <p className="text-sm text-gray-600 mb-1">📍 {advocate.city}</p>
+            <p className="text-sm text-gray-600 mb-1">🎓 {advocate.degree}</p>
             <p className="text-sm text-gray-600 mb-1">
-              📍 <span className="ml-1">{advocate.city}</span>
-            </p>
-            <p className="text-sm text-gray-600 mb-1">
-              🎓 <span className="ml-1">{advocate.degree}</span>
-            </p>
-            <p className="text-sm text-gray-600 mb-1">
-              🕰️{" "}
-              <span className="ml-1">
-                {advocate.yearsOfExperience} years experience
-              </span>
+              🕰️ {advocate.yearsOfExperience} years experience
             </p>
             {advocate.phoneNumber && (
               <p className="text-sm text-gray-600 mb-1">
-                📞 <span className="ml-1">{advocate.phoneNumber}</span>
+                📞 {advocate.phoneNumber}
               </p>
             )}
             <div className="mt-3 flex flex-wrap gap-1">
