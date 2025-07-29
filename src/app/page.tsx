@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Advocate } from "./types";
+import { AdvocateCard, Form } from "./components";
+import { Advocate } from "./types";
 
 const yearRanges = [
   { label: "< 2 years", value: "<2" },
-  { label: "3-6 years", value: "3-6" },
+  { label: "2-6 years", value: "2-6" },
   { label: "7-10 years", value: "7-10" },
   { label: "10+ years", value: "10+" },
 ];
@@ -68,8 +69,8 @@ export default function Home() {
         filters.yearsOfExperience === "" ||
         (filters.yearsOfExperience === "<2" &&
           advocate.yearsOfExperience < 2) ||
-        (filters.yearsOfExperience === "3-6" &&
-          advocate.yearsOfExperience >= 3 &&
+        (filters.yearsOfExperience === "2-6" &&
+          advocate.yearsOfExperience >= 2 &&
           advocate.yearsOfExperience <= 6) ||
         (filters.yearsOfExperience === "7-10" &&
           advocate.yearsOfExperience >= 7 &&
@@ -132,148 +133,20 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Solace Advocates
       </h1>
-      <form
-        onSubmit={handleSubmit}
-        onKeyDown={handleKeyDown}
-        className="bg-white p-6 rounded-lg shadow-md mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
-        {(["firstName", "lastName", "city", "phoneNumber"] as const).map(
-          (field) => (
-            <div key={field}>
-              <label className="block text-sm font-medium text-gray-700 capitalize">
-                {field}
-              </label>
-              <input
-                type="text"
-                name={field}
-                value={filters[field]}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
-            </div>
-          )
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Degree
-          </label>
-          <select
-            name="degree"
-            value={filters.degree}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-          >
-            <option value="">All</option>
-            {degrees.map((deg) => (
-              <option key={deg} value={deg}>
-                {deg}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Years of Experience
-          </label>
-          <select
-            name="yearsOfExperience"
-            value={filters.yearsOfExperience}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-          >
-            <option value="">All</option>
-            {yearRanges.map(({ label, value }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col-span-full">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Specialties
-          </label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {filters.specialties.map((s) => (
-              <span
-                key={s}
-                className="flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full"
-              >
-                {s}
-                <button
-                  type="button"
-                  onClick={() => toggleSpecialty(s)}
-                  className="text-blue-500 hover:text-red-600"
-                >
-                  ✕
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2">
-            {specialtiesList.map((s) => (
-              // I am doing dive with role button so then when I hit enter it does select an option
-              // and instead submits the form
-              <div
-                key={s}
-                role="button"
-                tabIndex={-1}
-                onClick={() => toggleSpecialty(s)}
-                className={`cursor-pointer text-xs px-2 py-1 rounded-full border ${
-                  filters.specialties.includes(s)
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-                }`}
-              >
-                {s}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="col-span-full">
-          <button
-            type="submit"
-            className="mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition"
-          >
-            Search
-          </button>
-        </div>
-      </form>
+      <Form
+        filters={filters}
+        degrees={degrees}
+        yearRanges={yearRanges}
+        specialtiesList={specialtiesList}
+        handleChange={handleChange}
+        toggleSpecialty={toggleSpecialty}
+        handleSubmit={handleSubmit}
+        handleKeyDown={handleKeyDown}
+      />
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredAdvocates.map((advocate) => (
-          <div
-            key={advocate.id}
-            className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition p-5"
-          >
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">
-              {advocate.firstName} {advocate.lastName}
-            </h2>
-            <p className="text-sm text-gray-600 mb-1">📍 {advocate.city}</p>
-            <p className="text-sm text-gray-600 mb-1">🎓 {advocate.degree}</p>
-            <p className="text-sm text-gray-600 mb-1">
-              🕰️ {advocate.yearsOfExperience} years experience
-            </p>
-            {advocate.phoneNumber && (
-              <p className="text-sm text-gray-600 mb-1">
-                📞 {advocate.phoneNumber}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-1">
-              {advocate.specialties.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
+        {filteredAdvocates.map((advocate, i) => (
+          <AdvocateCard advocate={advocate} key={i} />
         ))}
       </div>
     </div>

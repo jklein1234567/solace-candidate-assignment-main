@@ -8,3 +8,10 @@ export type Advocate = {
   yearsOfExperience: number;
   phoneNumber: number;
 };
+
+export enum FilterField {
+  FirstName = "firstName",
+  LastName = "lastName",
+  City = "city",
+  PhoneNumber = "phoneNumber",
+}
