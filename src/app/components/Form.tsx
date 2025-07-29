@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React from "react";
 import { FilterField } from "../types";
@@ -8,7 +8,9 @@ type Props = {
   degrees: string[];
   yearRanges: { label: string; value: string }[];
   specialtiesList: string[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   toggleSpecialty: (specialty: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLFormElement>) => void;
@@ -108,7 +110,7 @@ export const Form: React.FC<Props> = ({
             role="button"
             tabIndex={-1}
             onClick={() => toggleSpecialty(s)}
-            className={`cursor-pointer text-xs px-2 py-1 rounded-full border ${
+            className={`flex items-center justify-center text-xs text-center px-3 py-2 rounded-full border transition ${
               (filters.specialties as string[]).includes(s)
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-800 hover:bg-blue-100"
